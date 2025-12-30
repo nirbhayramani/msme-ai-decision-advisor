@@ -20,6 +20,13 @@ const App: React.FC = () => {
       setError('Please fill out all fields to get advice.');
       return;
     }
+
+    const wordCount = situation.trim() === '' ? 0 : situation.trim().split(/\s+/).length;
+    if (wordCount > 150) {
+        setError('Please keep your business situation under 150 words.');
+        return;
+    }
+
     setError(null);
     setIsLoading(true);
     setRecommendation(null);

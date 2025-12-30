@@ -42,21 +42,15 @@ export const InputForm: React.FC<InputFormProps> = ({
   }, [situation]);
 
   const handleSituationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const currentText = e.target.value;
-    const words = currentText.trim().split(/\s+/);
-    
-    if (words.length > WORD_LIMIT) {
-      const truncatedText = words.slice(0, WORD_LIMIT).join(' ');
-      setSituation(truncatedText);
-    } else {
-      setSituation(currentText);
-    }
+    setSituation(e.target.value);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit();
   };
+  
+  const isOverLimit = wordCount > WORD_LIMIT;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -89,7 +83,7 @@ export const InputForm: React.FC<InputFormProps> = ({
           className="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition-all duration-150 ease-in-out text-slate-900 placeholder:text-slate-500 resize-none overflow-hidden"
           disabled={isLoading}
         />
-        <p className={`text-right text-sm mt-1 ${wordCount >= WORD_LIMIT ? 'text-red-500 font-medium' : 'text-slate-500'}`}>
+        <p className={`text-right text-sm mt-1 ${isOverLimit ? 'text-red-500 font-bold' : 'text-slate-500'}`}>
           {wordCount}/{WORD_LIMIT} words
         </p>
       </div>
@@ -111,7 +105,7 @@ export const InputForm: React.FC<InputFormProps> = ({
 
       <button
         type="submit"
-        disabled={isLoading}
+        disabled={isLoading || isOverLimit}
         className="group w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 ease-in-out disabled:bg-slate-400 disabled:cursor-not-allowed"
       >
         {isLoading ? 'Thinking...' : 'Get Advice'}
