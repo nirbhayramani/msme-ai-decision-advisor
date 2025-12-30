@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { ArrowRightIcon } from './Icons';
 
 interface InputFormProps {
@@ -24,6 +24,7 @@ export const InputForm: React.FC<InputFormProps> = ({
   isLoading,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const WORD_LIMIT = 150;
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -32,6 +33,25 @@ export const InputForm: React.FC<InputFormProps> = ({
       textarea.style.height = `${textarea.scrollHeight}px`; // Set height to content height
     }
   }, [situation]); // Rerun this effect whenever the situation text changes
+
+  const wordCount = useMemo(() => {
+    if (situation.trim() === '') {
+      return 0;
+    }
+    return situation.trim().split(/\s+/).length;
+  }, [situation]);
+
+  const handleSituationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const currentText = e.target.value;
+    const words = currentText.trim().split(/\s+/);
+    
+    if (words.length > WORD_LIMIT) {
+      const truncatedText = words.slice(0, WORD_LIMIT).join(' ');
+      setSituation(truncatedText);
+    } else {
+      setSituation(currentText);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,12 +83,15 @@ export const InputForm: React.FC<InputFormProps> = ({
           id="situation"
           ref={textareaRef}
           value={situation}
-          onChange={(e) => setSituation(e.target.value)}
+          onChange={handleSituationChange}
           placeholder="e.g., Fewer customers on weekdays, Low profit margin"
           rows={3}
           className="w-full p-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition-all duration-150 ease-in-out text-slate-900 placeholder:text-slate-500 resize-none overflow-hidden"
           disabled={isLoading}
         />
+        <p className={`text-right text-sm mt-1 ${wordCount >= WORD_LIMIT ? 'text-red-500 font-medium' : 'text-slate-500'}`}>
+          {wordCount}/{WORD_LIMIT} words
+        </p>
       </div>
 
       <div>
